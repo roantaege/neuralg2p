@@ -52,18 +52,6 @@ g2p("ghiblification")
 Phonemes follow the [ARPAbet](https://en.wikipedia.org/wiki/ARPABET) standard
 used by CMUDict. Vowels have stress markers (0 = unstressed, 1 = primary, 2 = secondary).
 
-### Using in a TTS pipeline
-
-```python
-from neuralg2p.infer import G2PInference
-
-class MyTTS:
-    def __init__(self):
-        self.g2p = G2PInference("best_model.pt")  # load once
-
-    def text_to_phonemes(self, text: str) -> list:
-        return [self.g2p(word) for word in text.lower().split()]
-```
 
 ## Getting a trained model
 
