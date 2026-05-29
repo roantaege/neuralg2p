@@ -11,31 +11,30 @@ to modern PyTorch with no torchtext dependency.
 ## Install
 
 ```bash
-pip install git+https://github.com/yourname/g2p.git
-```
-
-Or clone and install locally (editable, so changes take effect immediately):
-
-```bash
-git clone https://github.com/yourname/g2p.git
-cd g2p
-pip install -e .
+pip install -r requirements.txt
 ```
 
 ## Usage
 
+### CLI
+
+```bash
+python infer.py hello
+# hello -> HH AH0 L OW1
+
+python infer.py --checkpoint best_model.pt psychology
+```
+
+### As a plugin / import
+
 ```python
-from g2p import G2PInference
+from infer import G2PInference
 
 g2p = G2PInference("best_model.pt")   # load once at startup
 
 # single word
 g2p("hello")
 # → ['HH', 'AH0', 'L', 'OW1']
-
-# batch — faster for sentences
-g2p.pronounce_batch(["the", "quick", "brown", "fox"])
-# → [['DH', 'AH0'], ['K', 'W', 'IH1', 'K'], ['B', 'R', 'AW1', 'N'], ['F', 'AA1', 'K', 'S']]
 
 # works on unfamiliar/made-up words too
 g2p("ghiblification")
@@ -48,44 +47,38 @@ used by CMUDict. Vowels have stress markers (0 = unstressed, 1 = primary, 2 = se
 ### Using in a TTS pipeline
 
 ```python
-from g2p import G2PInference
+from infer import G2PInference
 
 class MyTTS:
     def __init__(self):
         self.g2p = G2PInference("best_model.pt")  # load once
 
-    def text_to_phonemes(self, text: str) -> list[list[str]]:
-        words = text.lower().split()
-        return self.g2p.pronounce_batch(words)
+    def text_to_phonemes(self, text: str) -> list:
+        return [self.g2p(word) for word in text.lower().split()]
 ```
 
 ## Getting a trained model
 
-You need a `best_model.pt` checkpoint to run inference. Either:
+You need a `best_model.pt` checkpoint to run inference. Train your own (requires a GPU for reasonable speed):
 
-**Option A — train your own** (requires a GPU for reasonable speed):
 ```bash
 python train.py
 # saves best_model.pt automatically
 ```
 
-**Option B — download a pretrained checkpoint:**  
-_(link here once you upload one to GitHub Releases or HuggingFace Hub)_
-
 ## Training
+
+CMUDict (~134k words) is downloaded automatically on first run. Training stops via early stopping when validation loss plateaus.
 
 ```bash
 python train.py
 ```
 
-CMUDict (~134k words) is downloaded automatically. Training stops automatically
-via early stopping when validation loss plateaus.
-
 Common options:
 ```bash
 python train.py --epochs 100           # train longer
 python train.py --d_hidden 1024        # bigger model
-python train.py --no_attention         # slightly better results per original paper
+python train.py --no_attention         # disable attention
 python train.py --no_cuda              # force CPU (slow)
 ```
 
@@ -99,9 +92,7 @@ Expected results after full training (~30–50 epochs on GPU):
 ## Evaluation
 
 ```bash
-python evaluate.py
-python evaluate.py --beam_size 1       # greedy decoding, ~3x faster, slightly worse
-python evaluate.py --max_examples 500  # quick sanity check
+python g2p.py --test
 ```
 
 ## Why neural G2P?
@@ -117,15 +108,14 @@ them to words it has never seen.
 ## Project structure
 
 ```
-g2p/
+neuralg2p/
 ├── __init__.py     exports public API
 ├── model.py        Encoder, Attention, Decoder, G2P, Beam
 ├── data.py         load_cmudict, Vocab, encode, collate_fn
 ├── metrics.py      phoneme_error_rate (Levenshtein-based)
-└── infer.py        G2PInference — high-level API for use as a library
-train.py            training script
-evaluate.py         evaluation script (PER, WER, examples)
-pyproject.toml      pip install config
+├── infer.py        G2PInference — load checkpoint and predict
+├── train.py        training script
+└── g2p.py          monolithic script (train + evaluate in one file)
 ```
 
 ## Credits

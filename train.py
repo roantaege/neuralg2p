@@ -17,7 +17,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from g2p import G2P, Vocab, load_cmudict, encode, collate_fn, phoneme_error_rate
+from model import G2P
+from data import Vocab, load_cmudict, encode, collate_fn
+from metrics import phoneme_error_rate
 
 
 # ── Args ──────────────────────────────────────────────────────────────────────
@@ -68,8 +70,11 @@ def maybe_download(data_path):
 def validate(val_iter, model, criterion):
     model.eval()
     val_loss = 0
+    cuda = next(model.parameters()).is_cuda
     with torch.no_grad():
         for src, tgt in val_iter:
+            if cuda:
+                src, tgt = src.cuda(), tgt.cuda()
             src = src.transpose(0, 1)
             tgt = tgt.transpose(0, 1)
             output, _, _ = model(src, tgt[:-1, :])
@@ -91,6 +96,8 @@ def train(args, train_iter, val_iter, model, criterion, optimizer,
             state["iteration"] += 1
             model.train()
 
+            if args.cuda:
+                src, tgt = src.cuda(), tgt.cuda()
             src = src.transpose(0, 1)
             tgt = tgt.transpose(0, 1)
             output, _, _ = model(src, tgt[:-1, :])

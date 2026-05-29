@@ -294,6 +294,9 @@ def train(config, train_iter, val_iter, model, criterion, optimizer, epoch,
         model.train()
 
         src, tgt = batch
+        if config.cuda:
+            src = src.cuda()
+            tgt = tgt.cuda()
         src = src.transpose(0, 1)
         tgt = tgt.transpose(0, 1)
 
@@ -357,6 +360,9 @@ def validate(val_iter, model, criterion):
     val_loss = 0
     with torch.no_grad():
         for src, tgt in val_iter:
+            if next(model.parameters()).is_cuda:
+                src = src.cuda()
+                tgt = tgt.cuda()
             src = src.transpose(0, 1)
             tgt = tgt.transpose(0, 1)
             input_tgt = tgt[:-1, :]
@@ -372,8 +378,11 @@ def validate(val_iter, model, criterion):
 def test(model, test_iter, tgt_vocab, criterion):
     model.eval()
     total_per = total_wer = n = 0
+    cuda = next(model.parameters()).is_cuda
     with torch.no_grad():
         for src, tgt in test_iter:
+            if cuda:
+                src, tgt = src.cuda(), tgt.cuda()
             src = src.transpose(0, 1)
             tgt = tgt.transpose(0, 1)
             input_tgt = tgt[:-1, :]
@@ -450,7 +459,7 @@ if __name__ == "__main__":
 
     if "--test" in sys.argv:
         # Evaluate a previously saved checkpoint
-        checkpoint = torch.load("best_model.pt")
+        checkpoint = torch.load("best_model.pt", weights_only=False)
         model.load_state_dict(checkpoint["model_state"])
         model.eval()
         test(model, test_iter, tgt_vocab, criterion)
@@ -469,6 +478,6 @@ if __name__ == "__main__":
                 break
 
         print("Training complete. Running test evaluation...")
-        checkpoint = torch.load("best_model.pt")
+        checkpoint = torch.load("best_model.pt", weights_only=False)
         model.load_state_dict(checkpoint["model_state"])
         test(model, test_iter, tgt_vocab, criterion)

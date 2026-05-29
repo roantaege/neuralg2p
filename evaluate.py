@@ -1,9 +1,4 @@
-"""
-evaluate.py  –  standalone evaluation for g2p model
-Usage:
-    python evaluate.py
-    python evaluate.py --model best_model.pt --data_path ../data/cmudict/ --n_examples 10 --batch_size 128
-"""
+
 
 import argparse
 import os
@@ -14,6 +9,8 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
 import Levenshtein  # pip install python-Levenshtein
 
+
+torch.serialization.add_safe_globals([argparse.Namespace])
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -245,7 +242,8 @@ if __name__ == "__main__":
     args = cli.parse_args()
 
     # load checkpoint
-    checkpoint  = torch.load(args.model, map_location="cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(args.model, map_location=device)    
     config      = checkpoint["config"]
     config.cuda = config.cuda and torch.cuda.is_available()
     if args.beam_size is not None:
