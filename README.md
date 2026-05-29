@@ -4,8 +4,8 @@ A Grapheme-to-Phoneme (G2P) model in PyTorch — converts written words to
 [ARPAbet](https://en.wikipedia.org/wiki/ARPABET) phonemes, including words
 not in any dictionary.
 
-Built for use in TTS pipelines. Updated from the original
-[2017 tutorial](https://fehiepsi.github.io/blog/grapheme-to-phoneme.html)
+Built for use in TTS pipelines. Updated from
+[fehiepsi's tutorial](https://fehiepsi.github.io/blog/grapheme-to-phoneme.html)
 to modern PyTorch with no torchtext dependency.
 
 ## Install
