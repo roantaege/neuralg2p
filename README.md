@@ -11,7 +11,15 @@ to modern PyTorch with no torchtext dependency.
 ## Install
 
 ```bash
-pip install -r requirements.txt
+pip install git+https://github.com/yourname/neuralg2p.git
+```
+
+Or clone and install locally:
+
+```bash
+git clone https://github.com/yourname/neuralg2p.git
+cd neuralg2p
+pip install -e .
 ```
 
 ## Usage
@@ -28,7 +36,7 @@ python infer.py --checkpoint best_model.pt psychology
 ### As a plugin / import
 
 ```python
-from infer import G2PInference
+from neuralg2p.infer import G2PInference
 
 g2p = G2PInference("best_model.pt")   # load once at startup
 
@@ -47,7 +55,7 @@ used by CMUDict. Vowels have stress markers (0 = unstressed, 1 = primary, 2 = se
 ### Using in a TTS pipeline
 
 ```python
-from infer import G2PInference
+from neuralg2p.infer import G2PInference
 
 class MyTTS:
     def __init__(self):
@@ -97,26 +105,13 @@ python g2p.py --test
 
 ## Why neural G2P?
 
-Dictionary-based approaches (like just looking up CMUDict) fail on:
+Dictionary-based approaches fail on pronouncing:
 - Names and proper nouns ("Nguyen", "Saoirse")
 - Technical or scientific terms
 - Made-up words, brand names, neologisms
 
 A trained G2P model learns spelling-to-sound rules from data and generalizes
 them to words it has never seen.
-
-## Project structure
-
-```
-neuralg2p/
-├── __init__.py     exports public API
-├── model.py        Encoder, Attention, Decoder, G2P, Beam
-├── data.py         load_cmudict, Vocab, encode, collate_fn
-├── metrics.py      phoneme_error_rate (Levenshtein-based)
-├── infer.py        G2PInference — load checkpoint and predict
-├── train.py        training script
-└── g2p.py          monolithic script (train + evaluate in one file)
-```
 
 ## Credits
 
