@@ -55,11 +55,10 @@ used by CMUDict. Vowels have stress markers (0 = unstressed, 1 = primary, 2 = se
 
 ## Getting a trained model
 
-You need a `best_model.pt` checkpoint to run inference. You can train your own with:
+You need a `best_model.pt` checkpoint to run inference. You can train your own by running
 
-```bash
-python train.py
-# saves best_model.pt automatically
+```
+train.py
 ```
 ## Training
 
