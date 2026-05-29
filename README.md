@@ -55,13 +55,12 @@ used by CMUDict. Vowels have stress markers (0 = unstressed, 1 = primary, 2 = se
 
 ## Getting a trained model
 
-You need a `best_model.pt` checkpoint to run inference. Train your own (requires a GPU for reasonable speed):
+You need a `best_model.pt` checkpoint to run inference. You can train your own with:
 
 ```bash
 python train.py
 # saves best_model.pt automatically
 ```
-
 ## Training
 
 CMUDict (~134k words) is downloaded automatically on first run. Training stops via early stopping when validation loss plateaus.
